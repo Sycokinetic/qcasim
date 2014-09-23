@@ -3,7 +3,6 @@ package qcasim;
 import java.awt.Dimension;
 
 import qcasim.cell.Cell;
-import qcasim.cell.GameOfLifeCell;
 
 public class Simulator implements Runnable
 {
@@ -19,7 +18,7 @@ public class Simulator implements Runnable
     public Simulator()
     {
 	this.dim = new Dimension(300, 500);
-	this.cellList = new GameOfLifeCell[this.dim.height][this.dim.width];
+	this.cellList = new Cell[this.dim.height][this.dim.width];
 	this.init = new boolean[this.dim.height][this.dim.width];
 	
 	this.init();
@@ -72,7 +71,12 @@ public class Simulator implements Runnable
     public void stop()
     {
 	this.isRunning = false;
-	Driver.future.cancel(false);
+	try {
+	    Driver.future.cancel(false);
+	} catch (NullPointerException e)
+	{
+	    // Do Nothing
+	}
     }
     
     public void init()
@@ -84,7 +88,8 @@ public class Simulator implements Runnable
 		boolean b = false;
 		double r = Math.random();
 		if (r > 0.5) b = true;
-		this.cellList[i][j] = new GameOfLifeCell(b, this.isBordered);
+		this.cellList[i][j] = new Cell(b, this.isBordered);
+		this.cellList[i][j].setRule("B3/S23");
 		this.init[i][j] = b;
 	    }
 	}

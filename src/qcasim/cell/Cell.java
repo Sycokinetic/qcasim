@@ -2,7 +2,7 @@ package qcasim.cell;
 
 import qcasim.InvalidNeighborListException;
 
-public abstract class Cell
+public class Cell
 {
     protected boolean curState;
     protected boolean nextState;
@@ -10,12 +10,19 @@ public abstract class Cell
     protected Cell[] neighbors;
     protected int maxNeighbors;
     protected boolean isBordered;
+    
+    protected String rule;
+    protected boolean[] birth;
+    protected boolean[] survive;
 
     public Cell(boolean init, boolean isBordered)
     {
 	this.curState = init;
 	this.isBordered = isBordered;
-	this.configure();
+	this.birth = new boolean[9];
+	this.survive = new boolean[9];
+	
+	this.maxNeighbors = 8;
     }
 
     public Cell(boolean init, boolean isBordered, Cell[] cellList)
@@ -23,7 +30,10 @@ public abstract class Cell
 	this.curState = init;
 	this.isBordered = isBordered;
 	this.neighbors = cellList;
-	this.configure();
+	this.birth = new boolean[8];
+	this.survive = new boolean[8];
+	
+	this.maxNeighbors = 8;
     }
 
     public boolean getCurState()
@@ -36,6 +46,29 @@ public abstract class Cell
 	this.neighbors = cellList;
     }
 
+    public void setRule(String r)
+    {
+	this.rule = r;
+	
+	String b = r.split("/")[0];
+	for (int i = 1; i < b.length(); i++) this.birth[b.charAt(i) - '0'] = true;
+	
+	String s = r.split("/")[1];
+	for (int i = 1; i < s.length(); i++) this.survive[s.charAt(i) - '0'] = true;
+    }
+    
+    public void applyRule()
+    {
+	int numLive = 0;
+	for (Cell c: this.neighbors)
+	{
+	    if (c.curState) numLive++;
+	}
+	
+	if (!this.curState && this.birth[numLive]) this.nextState = true;
+	else if (this.curState && !this.survive[numLive]) this.nextState = false;
+    }
+    
     public void prepare() throws InvalidNeighborListException
     {
 	if (!validNeighbors())
@@ -44,7 +77,7 @@ public abstract class Cell
 	    throw new InvalidNeighborListException();
 	}
 
-	this.runRules();
+	this.applyRule();
     }
 
     public void update()
@@ -75,8 +108,4 @@ public abstract class Cell
     {
 	this.maxNeighbors = n;
     }
-    
-    protected abstract void configure();
-
-    protected abstract void runRules();
 }
