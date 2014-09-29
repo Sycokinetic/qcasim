@@ -1,129 +1,86 @@
 package qcasim;
 
-import java.awt.Dimension;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import qcasim.cell.Cell;
+import qcasim.display.Display;
 
-public class Simulator implements Runnable
+public class Simulator
 {
-    public Dimension dim;
-    public Cell[][] cellList;
-    public boolean[][] init;
+    protected static Display display;
+    protected static SimField simField;
+    protected static ScheduledExecutorService scheduler;
+    protected static ScheduledFuture<?> future;
+
+    protected static int tickCount = 0;
+    protected static int tickLengthMills = 80;
     
-    public boolean isRunning;
-    public boolean isBordered = false;
-    public int n;
-    public int i;
-    
-    public Simulator()
+    public static Cell[][] getCellField()
     {
-	this.dim = new Dimension(300, 500);
-	this.cellList = new Cell[this.dim.height][this.dim.width];
-	this.init = new boolean[this.dim.height][this.dim.width];
-	
-	this.init();
-    }
-
-    @Override
-    public void run()
-    {
-	if (this.isRunning)
-	{
-	    for (Cell[] clist : cellList)
-	    {
-		for (Cell c : clist)
-		    c.prepare();
-	    }
-
-	    for (Cell[] clist : cellList)
-	    {
-		for (Cell c : clist)
-		    c.update();
-	    }
-
-	    Driver.window.cycle();
-
-	    if (n != 0)
-	    {
-		i--;
-		if (i <= 0) this.isRunning = false;
-	    }
-	}
+	return simField.cellList;
     }
     
-    public void restart()
+    public static boolean[][] getInitField()
     {
-	for (int i = 0; i < this.dim.height; i++)
-	{
-	    for (int j = 0; j < this.dim.width; j++)
-	    {
-		this.cellList[i][j].setState(this.init[i][j]);
-	    }
-	}
+	return simField.initList;
     }
     
-    public void reset()
+    public static int getTickCount()
     {
-	this.stop();
-	this.init();
+	return tickCount;
     }
     
-    public void stop()
+    public static void setTickCount(int n)
     {
-	this.isRunning = false;
-	try {
-	    Driver.future.cancel(false);
-	} catch (NullPointerException e)
-	{
-	    // Do Nothing
-	}
+	tickCount = n;
     }
     
-    public void init()
+    public static Display getDisplay()
     {
-	for (int i = 0; i < this.cellList.length; i++)
+	return display;
+    }
+    
+    public static void start()
+    {
+	simField.tickCountTarget = tickCount;
+	simField.ticksRemaining = tickCount;
+	simField.isRunning = true;
+
+	future = scheduler.scheduleAtFixedRate(simField, 0, tickLengthMills, TimeUnit.MILLISECONDS);
+    }
+
+    public static void stop()
+    {
+	simField.setRunning(false);
+	try
 	{
-	    for (int j = 0; j < this.cellList[i].length; j++)
-	    {
-		boolean b = false;
-		double r = Math.random();
-		if (r > 0.5) b = true;
-		this.cellList[i][j] = new Cell(b, this.isBordered);
-		this.cellList[i][j].setRule("B3/S23");
-		this.init[i][j] = b;
-	    }
+	    future.cancel(false);
 	}
-
-	for (int i = 0; i < this.cellList.length; i++)
+	catch (NullPointerException e)
 	{
-	    for (int j = 0; j < this.cellList[i].length; j++)
-	    {
-		Cell[] neighbors = new Cell[8];
-		int k = 0;
-
-		for (int a = -1; a <= 1; a++)
-		{
-		    for (int b = -1; b <= 1; b++)
-		    {
-			int dx = i + a;
-			int dy = j + b;
-
-			if (dx < 0) dx = this.cellList.length - 1;
-			else if (dx >= this.cellList.length) dx = 0;
-
-			if (dy < 0) dy = this.cellList[i].length - 1;
-			else if (dy >= this.cellList[i].length) dy = 0;
-
-			if (a != 0 || b != 0)
-			{
-			    neighbors[k] = this.cellList[dx][dy];
-			    k++;
-			}
-		    }
-		}
-
-		this.cellList[i][j].setNeighbors(neighbors);
-	    }
 	}
+    }
+
+    public static void restart()
+    {
+	stop();
+	simField.restart();
+    }
+    
+    public static void reset()
+    {
+	stop();
+	simField.reset();
+    }
+    
+    public static void main(String[] args)
+    {
+	scheduler = Executors.newScheduledThreadPool(1);
+	simField = new SimField();
+	display = new Display();
+	//window = new MenuWindow();
     }
 }

@@ -23,7 +23,7 @@
 	<target name="jar" description="Archive sources into jar" depends="build">
 		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
 			<manifest>
-				<attribute name="Main-Class" value="qcasim.Driver" />
+				<attribute name="Main-Class" value="qcasim.Simulator" />
 			</manifest>			
 		</jar>
 	</target>

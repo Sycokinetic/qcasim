@@ -10,7 +10,7 @@ public class Cell
     protected Cell[] neighbors;
     protected int maxNeighbors;
     protected boolean isBordered;
-    
+
     protected String rule;
     protected boolean[] birth;
     protected boolean[] survive;
@@ -21,7 +21,7 @@ public class Cell
 	this.isBordered = isBordered;
 	this.birth = new boolean[9];
 	this.survive = new boolean[9];
-	
+
 	this.maxNeighbors = 8;
     }
 
@@ -32,7 +32,7 @@ public class Cell
 	this.neighbors = cellList;
 	this.birth = new boolean[8];
 	this.survive = new boolean[8];
-	
+
 	this.maxNeighbors = 8;
     }
 
@@ -49,26 +49,28 @@ public class Cell
     public void setRule(String r)
     {
 	this.rule = r;
-	
+
 	String b = r.split("/")[0];
-	for (int i = 1; i < b.length(); i++) this.birth[b.charAt(i) - '0'] = true;
-	
+	for (int i = 1; i < b.length(); i++)
+	    this.birth[b.charAt(i) - '0'] = true;
+
 	String s = r.split("/")[1];
-	for (int i = 1; i < s.length(); i++) this.survive[s.charAt(i) - '0'] = true;
+	for (int i = 1; i < s.length(); i++)
+	    this.survive[s.charAt(i) - '0'] = true;
     }
-    
+
     public void applyRule()
     {
 	int numLive = 0;
-	for (Cell c: this.neighbors)
+	for (Cell c : this.neighbors)
 	{
 	    if (c.curState) numLive++;
 	}
-	
+
 	if (!this.curState && this.birth[numLive]) this.nextState = true;
 	else if (this.curState && !this.survive[numLive]) this.nextState = false;
     }
-    
+
     public void prepare() throws InvalidNeighborListException
     {
 	if (!validNeighbors())
@@ -89,7 +91,7 @@ public class Cell
     {
 	this.curState = b;
     }
-    
+
     protected boolean validNeighbors()
     {
 	if (this.isBordered)

@@ -1,4 +1,4 @@
-package qcasim.display;
+package qcasim.display.panel;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -6,13 +6,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import qcasim.Driver;
+import qcasim.Simulator;
 
-public class MenuPanel extends JPanel
+public class OptionPanel extends SimPanel
 {
     private static final long serialVersionUID = 1L;
     private int curTick;
@@ -25,7 +24,7 @@ public class MenuPanel extends JPanel
     private JButton restart;
     private JButton reset;
 
-    public MenuPanel()
+    public OptionPanel()
     {
 	this.panelList = new JPanel[6];
 	for (int i = 0; i < 6; i++)
@@ -35,7 +34,7 @@ public class MenuPanel extends JPanel
 	}
 
 	this.setLayout(new GridLayout(1, 6));
-	this.panelList[0].add(new JLabel("Number of Cycles:"));
+	this.panelList[0].add(new JLabel("Number of Cycles to Run:"));
 
 	this.cycleField = new JTextField(10);
 	this.panelList[1].add(this.cycleField);
@@ -51,17 +50,18 @@ public class MenuPanel extends JPanel
 		try
 		{
 		    int n;
-		    if (MenuPanel.this.cycleField.getText().equals("")) n = 0;
-		    else n = Integer.parseInt(MenuPanel.this.cycleField.getText());
-		    Driver.start(n);
+		    if (OptionPanel.this.cycleField.getText().equals("")) n = 0;
+		    else n = Integer.parseInt(OptionPanel.this.cycleField.getText());
+		    Simulator.setTickCount(n);
+		    Simulator.start();
 
-		    MenuPanel.this.panelList[3].remove(MenuPanel.this.start);
-		    MenuPanel.this.panelList[3].add(MenuPanel.this.stop);
-		    MenuPanel.this.panelList[3].repaint();
+		    OptionPanel.this.panelList[3].remove(OptionPanel.this.start);
+		    OptionPanel.this.panelList[3].add(OptionPanel.this.stop);
+		    OptionPanel.this.panelList[3].repaint();
 		}
 		catch (NumberFormatException e)
 		{
-		    JOptionPane.showMessageDialog(Driver.window, "Please enter the number of cycles to run, or 0 to cycle indefinitely.");
+		    Simulator.getDisplay().alert("Please enter the number of cycles to run, or 0 to cycle indefinitely.");
 		}
 	    }
 	});
@@ -72,10 +72,10 @@ public class MenuPanel extends JPanel
 	{
 	    public void actionPerformed(ActionEvent evt)
 	    {
-		Driver.sim.stop();
-		MenuPanel.this.panelList[3].remove(MenuPanel.this.stop);
-		MenuPanel.this.panelList[3].add(MenuPanel.this.start);
-		MenuPanel.this.panelList[3].repaint();
+		Simulator.stop();
+		OptionPanel.this.panelList[3].remove(OptionPanel.this.stop);
+		OptionPanel.this.panelList[3].add(OptionPanel.this.start);
+		OptionPanel.this.panelList[3].repaint();
 	    }
 	});
 
@@ -84,31 +84,39 @@ public class MenuPanel extends JPanel
 	{
 	    public void actionPerformed(ActionEvent evt)
 	    {
-		MenuPanel.this.stop.doClick();
-		Driver.sim.restart();
-		MenuPanel.this.curTick = 0;
-		Driver.window.repaint();
+		OptionPanel.this.stop.doClick();
+		Simulator.restart();
+		OptionPanel.this.curTick = 0;
+		OptionPanel.this.curTickLabel.setText("Current Tick: " + String.valueOf(OptionPanel.this.curTick));
+		Simulator.getDisplay().getRenderWindow().reset();
+		Simulator.getDisplay().reset();
 	    }
 	});
 	this.panelList[4].add(this.restart);
-	
+
 	this.reset = new JButton("New");
 	this.reset.addActionListener(new ActionListener()
 	{
 	    public void actionPerformed(ActionEvent evt)
 	    {
-		MenuPanel.this.stop.doClick();
-		Driver.sim.reset();
-		MenuPanel.this.curTick = 0;
-		Driver.window.repaint();
+		OptionPanel.this.stop.doClick();
+		Simulator.reset();
+		OptionPanel.this.curTick = 0;
+		OptionPanel.this.curTickLabel.setText("Current Tick: " + String.valueOf(OptionPanel.this.curTick));
+		Simulator.getDisplay().reset();
 	    }
 	});
 	this.panelList[5].add(this.reset);
     }
-
+    
     public void cycle()
     {
 	this.curTick++;
 	this.curTickLabel.setText("Current Tick: " + String.valueOf(this.curTick));
+    }
+
+    @Override
+    public void reset()
+    {
     }
 }
