@@ -3,31 +3,31 @@ package qcasim.display.window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import qcasim.Manager;
 import qcasim.Simulator;
 import qcasim.display.panel.RenderPanel;
 
-public class RenderWindow extends SimWindow
+public class RenderWindow extends Manager<JFrame>
 {
-    private static final long serialVersionUID = 1L;
-
-    protected RenderPanel renderPanel;
-    private int width = 1500;
-    private int height = width / 16 * 9;
+    protected int width = 1500;
+    protected int height = width / 16 * 9;
+    protected boolean mayOpen = false;
 
     public RenderWindow()
     {
-	this.renderPanel = new RenderPanel(2);
+	this.element = new JFrame();
+	this.children.add(new RenderPanel());
 
-	this.setContentPane(this.renderPanel);
-	this.setLocationRelativeTo(null);
-	this.setTitle("QCA Simuator: Render Window");
-
-	this.setUndecorated(false);
-	this.setSize(width, height);
-	this.setVisible(false);
-
-	this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-	this.addWindowListener(new WindowListener()
+	this.element.setTitle("QCA Simuator: Render Window");
+	this.element.setSize(width, height);
+	this.element.setLocationRelativeTo(null);
+	
+	this.element.setContentPane((JPanel) this.children.get(0).getElement());
+	this.element.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	this.element.addWindowListener(new WindowListener()
 	{
 	    @Override
 	    public void windowActivated(WindowEvent arg0)
@@ -43,7 +43,7 @@ public class RenderWindow extends SimWindow
 	    public void windowClosing(WindowEvent arg0)
 	    {
 		Simulator.stop();
-		RenderWindow.this.setVisible(false);
+		RenderWindow.this.element.setVisible(false);
 	    }
 
 	    @Override
@@ -67,15 +67,34 @@ public class RenderWindow extends SimWindow
 	    }
 	});
     }
+    
+    @Override
+    public void init()
+    {
+	this.mayOpen = false;
+    }
 
+    @Override
     public void cycle()
     {
-	this.renderPanel.cycle();
+	if (!this.element.isVisible() && this.mayOpen) this.element.setVisible(true);
     }
-    
-    public void reset()
+
+    @Override
+    public void revert()
     {
-	this.repaint();
-	this.renderPanel.repaint();
+	this.mayOpen = false;
+    }
+
+    @Override
+    protected void stop()
+    {
+	this.mayOpen = false;
+    }
+
+    @Override
+    protected void start()
+    {
+	this.mayOpen = true;
     }
 }

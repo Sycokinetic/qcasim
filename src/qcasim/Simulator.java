@@ -6,26 +6,32 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import qcasim.cell.Cell;
+import qcasim.cell.Automaton;
 import qcasim.display.Display;
 
 public class Simulator
 {
-    protected static Display display;
-    protected static SimField simField;
-    protected static ScheduledExecutorService scheduler;
+    protected static Display display = new Display();
+    protected static Automaton automaton = new Automaton();
+    protected static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     protected static ScheduledFuture<?> future;
 
     protected static int tickCount = 0;
     protected static int tickLengthMills = 80;
     
-    public static Cell[][] getCellField()
+    public static Automaton getAutomaton()
     {
-	return simField.cellList;
+	return automaton;
     }
     
-    public static boolean[][] getInitField()
+    public static Cell[][] getCellGrid()
     {
-	return simField.initList;
+	return automaton.getCellGrid();
+    }
+    
+    public static boolean[][] getInitGrid()
+    {
+	return automaton.getInitGrid();
     }
     
     public static int getTickCount()
@@ -45,42 +51,45 @@ public class Simulator
     
     public static void start()
     {
-	simField.tickCountTarget = tickCount;
-	simField.ticksRemaining = tickCount;
-	simField.isRunning = true;
+	automaton.setTickTarget(tickCount);
+	automaton.setRunning(true);
+	automaton.startChildren();
+	display.startChildren();
 
-	future = scheduler.scheduleAtFixedRate(simField, 0, tickLengthMills, TimeUnit.MILLISECONDS);
+	future = scheduler.scheduleAtFixedRate(automaton, 0, tickLengthMills, TimeUnit.MILLISECONDS);
     }
 
     public static void stop()
     {
-	simField.setRunning(false);
+	automaton.setRunning(false);
 	try
 	{
 	    future.cancel(false);
 	}
 	catch (NullPointerException e)
 	{
+	    // Do nothing
 	}
+	
+	automaton.stopChildren();
+	display.stopChildren();
+    }
+    
+    public static void init()
+    {
+	automaton.initChildren();
+	display.initChildren();
     }
 
-    public static void restart()
+    protected static void cycle()
     {
-	stop();
-	simField.restart();
+	automaton.cycleChildren();
+	display.cycleChildren();
     }
-    
-    public static void reset()
+
+    public static void revert()
     {
-	stop();
-	simField.reset();
-    }
-    
-    public static void main(String[] args)
-    {
-	scheduler = Executors.newScheduledThreadPool(1);
-	simField = new SimField();
-	display = new Display();
-	//window = new MenuWindow();
+	automaton.revertChildren();
+	display.revertChildren();
     }
 }

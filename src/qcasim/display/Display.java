@@ -1,47 +1,66 @@
 package qcasim.display;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import qcasim.Manager;
 import qcasim.display.window.MenuWindow;
 import qcasim.display.window.RenderWindow;
 
-public class Display implements DisplayInterface
+public class Display extends Manager<JFrame>
 {
-    protected MenuWindow menuWindow;
-    protected RenderWindow renderWindow;
-    
+    protected MenuWindow menuWindowManager;
+    protected RenderWindow renderWindowManager;
+
     public Display()
     {
-	this.menuWindow = new MenuWindow();
-	this.renderWindow = new RenderWindow();
+	this.menuWindowManager = new MenuWindow();
+	this.renderWindowManager = new RenderWindow();
+
+	this.children.add(this.menuWindowManager);
+	this.children.add(this.renderWindowManager);
     }
-    
+
     public MenuWindow getMenuWindow()
     {
-	return this.menuWindow;
+	return this.menuWindowManager;
     }
-    
+
     public RenderWindow getRenderWindow()
     {
-	return this.renderWindow;
+	return this.renderWindowManager;
     }
-    
+
     public void alert(String m)
     {
-	JOptionPane.showMessageDialog(this.menuWindow, "Please enter the number of cycles to run, or 0 to cycle indefinitely.");
-    }
-    
-    public void cycle()
-    {
-	if (!this.renderWindow.isVisible()) this.renderWindow.setVisible(true);
-	this.renderWindow.cycle();
-	this.menuWindow.cycle();
+	JOptionPane.showMessageDialog(this.menuWindowManager.getElement(), "Please enter the number of cycles to run, or 0 to cycle indefinitely.");
     }
 
     @Override
-    public void reset()
+    protected void init()
     {
-	this.renderWindow.reset();
-	this.menuWindow.reset();
+    }
+
+    @Override
+    protected void cycle()
+    {
+    }
+
+    @Override
+    protected void revert()
+    {
+    }
+    
+    @Override
+    protected void stop()
+    {
+	// Do nothing
+    }
+
+    @Override
+    protected void start()
+    {
+	// TODO Auto-generated method stub
+	
     }
 }

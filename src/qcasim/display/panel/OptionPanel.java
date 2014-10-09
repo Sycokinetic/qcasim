@@ -9,31 +9,33 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import qcasim.Manager;
 import qcasim.Simulator;
 
-public class OptionPanel extends SimPanel
+public class OptionPanel extends Manager<JPanel>
 {
-    private static final long serialVersionUID = 1L;
-    private int curTick;
+    protected int curTick;
+    protected JLabel curTickLabel;
+    protected JTextField cycleField;
+    protected JButton runButton;
+    protected JButton initButton;
+    protected JButton revertButton;
 
-    private JPanel[] panelList;
-    private JLabel curTickLabel;
-    private JTextField cycleField;
-    private JButton start;
-    private JButton stop;
-    private JButton restart;
-    private JButton reset;
+    protected JPanel[] panelList;
 
     public OptionPanel()
     {
+	this.element = new JPanel();
+
+	this.element.setLayout(new GridLayout(1, 6));
+
 	this.panelList = new JPanel[6];
 	for (int i = 0; i < 6; i++)
 	{
 	    this.panelList[i] = new JPanel();
-	    this.add(this.panelList[i]);
+	    this.element.add(this.panelList[i]);
 	}
 
-	this.setLayout(new GridLayout(1, 6));
 	this.panelList[0].add(new JLabel("Number of Cycles to Run:"));
 
 	this.cycleField = new JTextField(10);
@@ -42,81 +44,98 @@ public class OptionPanel extends SimPanel
 	this.curTickLabel = new JLabel("Current Tick: " + String.valueOf(this.curTick));
 	this.panelList[2].add(this.curTickLabel);
 
-	this.start = new JButton("Start");
-	this.start.addActionListener(new ActionListener()
+	this.runButton = new JButton("Start");
+	this.runButton.addActionListener(new ActionListener()
 	{
 	    public void actionPerformed(ActionEvent evt)
 	    {
-		try
+		if (OptionPanel.this.runButton.getText().equals("Start"))
 		{
-		    int n;
-		    if (OptionPanel.this.cycleField.getText().equals("")) n = 0;
-		    else n = Integer.parseInt(OptionPanel.this.cycleField.getText());
-		    Simulator.setTickCount(n);
-		    Simulator.start();
+		    try
+		    {
+			int n = 0;
+			if (!OptionPanel.this.cycleField.getText().equals(""))
+			{
+			    n = Integer.parseInt(OptionPanel.this.cycleField.getText());
+			}
+			Simulator.setTickCount(n);
+			Simulator.start();
 
-		    OptionPanel.this.panelList[3].remove(OptionPanel.this.start);
-		    OptionPanel.this.panelList[3].add(OptionPanel.this.stop);
-		    OptionPanel.this.panelList[3].repaint();
+			OptionPanel.this.runButton.setText("Stop");
+			OptionPanel.this.element.repaint();
+		    }
+		    catch (NumberFormatException e)
+		    {
+			Simulator.getDisplay().alert("Please enter the number of cycles to run, or leave empty to cycle indefinitely.");
+		    }
 		}
-		catch (NumberFormatException e)
+		else if (OptionPanel.this.runButton.getText().equals("Stop"))
 		{
-		    Simulator.getDisplay().alert("Please enter the number of cycles to run, or 0 to cycle indefinitely.");
+		    Simulator.stop();
+		    OptionPanel.this.runButton.setText("Start");
+		    OptionPanel.this.element.repaint();
 		}
 	    }
 	});
-	this.panelList[3].add(this.start);
+	this.panelList[3].add(this.runButton);
 
-	this.stop = new JButton("Stop");
-	this.stop.addActionListener(new ActionListener()
+	this.initButton = new JButton("New");
+	this.initButton.addActionListener(new ActionListener()
 	{
 	    public void actionPerformed(ActionEvent evt)
 	    {
 		Simulator.stop();
-		OptionPanel.this.panelList[3].remove(OptionPanel.this.stop);
-		OptionPanel.this.panelList[3].add(OptionPanel.this.start);
-		OptionPanel.this.panelList[3].repaint();
+		Simulator.init();
 	    }
 	});
+	this.element.add(this.initButton);
 
-	this.restart = new JButton("Restart");
-	this.restart.addActionListener(new ActionListener()
+	this.revertButton = new JButton("Revert");
+	this.revertButton.addActionListener(new ActionListener()
 	{
 	    public void actionPerformed(ActionEvent evt)
 	    {
-		OptionPanel.this.stop.doClick();
-		Simulator.restart();
-		OptionPanel.this.curTick = 0;
-		OptionPanel.this.curTickLabel.setText("Current Tick: " + String.valueOf(OptionPanel.this.curTick));
-		Simulator.getDisplay().getRenderWindow().reset();
-		Simulator.getDisplay().reset();
+		Simulator.stop();
+		Simulator.revert();
 	    }
 	});
-	this.panelList[4].add(this.restart);
-
-	this.reset = new JButton("New");
-	this.reset.addActionListener(new ActionListener()
-	{
-	    public void actionPerformed(ActionEvent evt)
-	    {
-		OptionPanel.this.stop.doClick();
-		Simulator.reset();
-		OptionPanel.this.curTick = 0;
-		OptionPanel.this.curTickLabel.setText("Current Tick: " + String.valueOf(OptionPanel.this.curTick));
-		Simulator.getDisplay().reset();
-	    }
-	});
-	this.panelList[5].add(this.reset);
+	this.element.add(this.revertButton);
     }
-    
-    public void cycle()
+
+    @Override
+    protected void init()
+    {
+	this.curTick = 0;
+	this.curTickLabel.setText("Current Tick: " + String.valueOf(this.curTick));
+	this.runButton.setText("Start");
+    }
+
+    @Override
+    protected void cycle()
     {
 	this.curTick++;
 	this.curTickLabel.setText("Current Tick: " + String.valueOf(this.curTick));
     }
 
     @Override
-    public void reset()
+    protected void revert()
     {
+	this.curTick = 0;
+	this.curTickLabel.setText("Current Tick: " + String.valueOf(this.curTick));
+	this.runButton.setText("Start");
     }
+
+    @Override
+    protected void stop()
+    {
+	this.runButton.setText("Start");
+    }
+
+    @Override
+    protected void start()
+    {
+	// TODO Auto-generated method stub
+	
+    }
+
 }

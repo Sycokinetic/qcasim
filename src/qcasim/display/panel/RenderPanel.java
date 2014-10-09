@@ -3,44 +3,67 @@ package qcasim.display.panel;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import javax.swing.JPanel;
+
+import qcasim.Manager;
 import qcasim.Simulator;
 
-public class RenderPanel extends SimPanel
+public class RenderPanel extends Manager<JPanel>
 {
-    private static final long serialVersionUID = 1L;
-    
-    protected int cellSize;
+    public RenderPanel()
+    {
+	this.element = new JPanel() {
+	    private static final long serialVersionUID = 1L;
+	    protected int cellSize = 2;
 
-    public RenderPanel(int n)
-    {
-	this.cellSize = n;
-    }
-    
-    @Override
-    protected void paintComponent(Graphics g)
-    {
-	super.paintComponent(g);
-	
-	for (int i = 0; i < Simulator.getCellField().length; i++)
-	{
-	    for (int j = 0; j < Simulator.getCellField()[i].length; j++) {
-		if (Simulator.getCellField()[i][j].getCurState()) g.setColor(Color.WHITE);
-		else g.setColor(Color.BLACK);
+	    @Override
+	    protected void paintComponent(Graphics g)
+	    {
+		super.paintComponent(g);
 		
-		g.fillRect(i * this.cellSize, j * this.cellSize, this.cellSize, this.cellSize);
+		for (int i = 0; i < Simulator.getCellGrid().length; i++)
+		{
+		    for (int j = 0; j < Simulator.getCellGrid()[i].length; j++) {
+			if (Simulator.getCellGrid()[i][j].getCurState()) g.setColor(Color.WHITE);
+			else g.setColor(Color.BLACK);
+			
+			g.fillRect(i * this.cellSize, j * this.cellSize, this.cellSize, this.cellSize);
+		    }
+		}
 	    }
-	}
+	};
     }
-    
+
     @Override
-    public void cycle()
+    protected void init()
     {
-	this.repaint();
+	this.element.repaint();
     }
-    
+
     @Override
-    public void reset()
+    protected void cycle()
     {
-	this.repaint();
+	this.element.repaint();
     }
+
+    @Override
+    protected void revert()
+    {
+	this.element.repaint();
+    }
+
+    @Override
+    protected void stop()
+    {
+	// TODO Auto-generated method stub
+	
+    }
+
+    @Override
+    protected void start()
+    {
+	// TODO Auto-generated method stub
+	
+    }
+
 }
