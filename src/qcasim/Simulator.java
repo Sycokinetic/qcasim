@@ -15,7 +15,6 @@ public class Simulator
     protected static Automaton automaton = new Automaton();
     protected static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     protected static ScheduledFuture<?> future;
-    protected static boolean isRunning;
 
     protected static int tickCount = 0;
     protected static int tickLengthMills = 80;
