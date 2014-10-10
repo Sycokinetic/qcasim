@@ -88,7 +88,7 @@ public class OptionPanel extends Manager<JPanel>
 		Simulator.init();
 	    }
 	});
-	this.element.add(this.initButton);
+	this.panelList[4].add(this.initButton);
 
 	this.revertButton = new JButton("Revert");
 	this.revertButton.addActionListener(new ActionListener()
@@ -99,7 +99,7 @@ public class OptionPanel extends Manager<JPanel>
 		Simulator.revert();
 	    }
 	});
-	this.element.add(this.revertButton);
+	this.panelList[5].add(this.revertButton);
     }
 
     @Override
