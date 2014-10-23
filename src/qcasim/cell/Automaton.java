@@ -10,17 +10,19 @@ public class Automaton extends Manager<Cell> implements Runnable
     protected Dimension fieldDim;
     protected Cell[][] cellGrid;
     protected boolean[][] initGrid;
-
+    
     protected boolean isRunning;
     protected boolean isBordered = false;
     protected Dimension initBoundary;
     protected int tickCountTarget;
     protected int ticksRemaining;
+    protected String rule;
 
     public Automaton()
     {
-	this.fieldDim = new Dimension(300, 500);
-
+	this.fieldDim = new Dimension(100, 100);
+	this.setRule("B3/S23");
+	
 	this.init();
     }
 
@@ -34,6 +36,16 @@ public class Automaton extends Manager<Cell> implements Runnable
 	return this.initGrid;
     }
 
+    public String getRule()
+    {
+	return this.rule;
+    }
+    
+    public Dimension getDim()
+    {
+	return this.fieldDim;
+    }
+    
     public void setRunning(boolean b)
     {
 	this.isRunning = b;
@@ -44,9 +56,15 @@ public class Automaton extends Manager<Cell> implements Runnable
 	this.tickCountTarget = n;
 	this.ticksRemaining = n;
     }
+    
+    public void setRule(String r)
+    {
+	this.rule = r;
+	Cell.setRule(r);
+    }
 
     @Override
-    protected void init()
+    public void init()
     {
 	this.cellGrid = new Cell[this.fieldDim.height][this.fieldDim.width];
 	this.initGrid = new boolean[this.fieldDim.height][this.fieldDim.width];
@@ -59,7 +77,6 @@ public class Automaton extends Manager<Cell> implements Runnable
 		double r = Math.random();
 		if (r > 0.5) b = true;
 		this.cellGrid[i][j] = new Cell(b, this.isBordered);
-		this.cellGrid[i][j].setRule("B3/S23");
 		this.initGrid[i][j] = b;
 	    }
 	}

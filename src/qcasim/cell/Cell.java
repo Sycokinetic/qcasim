@@ -1,6 +1,5 @@
 package qcasim.cell;
 
-import qcasim.InvalidNeighborListException;
 
 public class Cell
 {
@@ -11,16 +10,14 @@ public class Cell
     protected int maxNeighbors;
     protected boolean isBordered;
 
-    protected String rule;
-    protected boolean[] birth;
-    protected boolean[] survive;
+    protected static String rule;
+    protected static boolean[] birth;
+    protected static boolean[] survive;
 
     public Cell(boolean init, boolean isBordered)
     {
 	this.curState = init;
 	this.isBordered = isBordered;
-	this.birth = new boolean[9];
-	this.survive = new boolean[9];
 
 	this.maxNeighbors = 8;
     }
@@ -30,12 +27,16 @@ public class Cell
 	this.curState = init;
 	this.isBordered = isBordered;
 	this.neighbors = cellList;
-	this.birth = new boolean[8];
-	this.survive = new boolean[8];
 
 	this.maxNeighbors = 8;
     }
 
+    public void toggleState()
+    {
+	if (this.curState) this.curState = false;
+	else this.curState = true;
+    }
+    
     public boolean getCurState()
     {
 	return this.curState;
@@ -46,17 +47,19 @@ public class Cell
 	this.neighbors = cellList;
     }
 
-    public void setRule(String r)
+    public static void setRule(String r)
     {
-	this.rule = r;
-
+	birth = new boolean[9];
+	survive = new boolean[9];
+	
+	rule = r;
 	String b = r.split("/")[0];
 	for (int i = 1; i < b.length(); i++)
-	    this.birth[b.charAt(i) - '0'] = true;
+	    birth[b.charAt(i) - '0'] = true;
 
 	String s = r.split("/")[1];
 	for (int i = 1; i < s.length(); i++)
-	    this.survive[s.charAt(i) - '0'] = true;
+	    survive[s.charAt(i) - '0'] = true;
     }
 
     public void applyRule()
@@ -67,8 +70,8 @@ public class Cell
 	    if (c.curState) numLive++;
 	}
 
-	if (!this.curState && this.birth[numLive]) this.nextState = true;
-	else if (this.curState && !this.survive[numLive]) this.nextState = false;
+	if (!this.curState && birth[numLive]) this.nextState = true;
+	else if (this.curState && !survive[numLive]) this.nextState = false;
     }
 
     public void prepare() throws InvalidNeighborListException

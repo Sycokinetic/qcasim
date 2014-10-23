@@ -22,6 +22,11 @@ public abstract class Manager<T>
 	return this.element;
     }
     
+    public ArrayList<Manager<?>> getChildren()
+    {
+	return this.children;
+    }
+    
     public void setElement(T elem)
     {
 	this.element = elem;

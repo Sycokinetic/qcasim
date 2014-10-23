@@ -1,5 +1,6 @@
 package qcasim.display.panel;
 
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,35 +16,53 @@ import qcasim.Simulator;
 public class OptionPanel extends Manager<JPanel>
 {
     protected int curTick;
+    protected JTextField ruleField;
     protected JLabel curTickLabel;
     protected JTextField cycleField;
+    protected JButton drawButton;
     protected JButton runButton;
     protected JButton initButton;
     protected JButton revertButton;
 
-    protected JPanel[] panelList;
+    protected int menuLength = 18;
+    protected JPanel[] panelList = new JPanel[this.menuLength];
+    protected int curIndex = 0;
 
     public OptionPanel()
     {
 	this.element = new JPanel();
 
-	this.element.setLayout(new GridLayout(1, 6));
+	this.element.setLayout(new GridLayout(this.menuLength / 6, 6));
 
-	this.panelList = new JPanel[6];
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < this.panelList.length; i++)
 	{
 	    this.panelList[i] = new JPanel();
 	    this.element.add(this.panelList[i]);
 	}
 
-	this.panelList[0].add(new JLabel("Number of Cycles to Run:"));
+	this.addPanel(new JLabel("Rule:"));
+	this.ruleField = new JTextField(10);
+	this.ruleField.setText("B3/S23");
+	this.addPanel(this.ruleField);
+
+	this.addPanel(new JLabel("Number of Cycles:"));
 
 	this.cycleField = new JTextField(10);
-	this.panelList[1].add(this.cycleField);
+	this.addPanel(this.cycleField);
 
-	this.curTickLabel = new JLabel("Current Tick: " + String.valueOf(this.curTick));
-	this.panelList[2].add(this.curTickLabel);
+	this.curIndex = 6;
+	this.drawButton = new JButton("Draw");
+	this.drawButton.addActionListener(new ActionListener()
+	{
+	    @Override
+	    public void actionPerformed(ActionEvent arg0)
+	    {
+		Simulator.getDisplay().getRenderWindow().getElement().setVisible(true);
+	    }
+	});
+	this.addPanel(this.drawButton);
 
+	this.curIndex = 12;
 	this.runButton = new JButton("Start");
 	this.runButton.addActionListener(new ActionListener()
 	{
@@ -59,6 +78,7 @@ public class OptionPanel extends Manager<JPanel>
 			    n = Integer.parseInt(OptionPanel.this.cycleField.getText());
 			}
 			Simulator.setTickCount(n);
+			Simulator.setRule(OptionPanel.this.ruleField.getText());
 			Simulator.start();
 
 			OptionPanel.this.runButton.setText("Stop");
@@ -77,7 +97,7 @@ public class OptionPanel extends Manager<JPanel>
 		}
 	    }
 	});
-	this.panelList[3].add(this.runButton);
+	this.addPanel(this.runButton);
 
 	this.initButton = new JButton("New");
 	this.initButton.addActionListener(new ActionListener()
@@ -88,7 +108,7 @@ public class OptionPanel extends Manager<JPanel>
 		Simulator.init();
 	    }
 	});
-	this.panelList[4].add(this.initButton);
+	this.addPanel(this.initButton);
 
 	this.revertButton = new JButton("Revert");
 	this.revertButton.addActionListener(new ActionListener()
@@ -99,7 +119,23 @@ public class OptionPanel extends Manager<JPanel>
 		Simulator.revert();
 	    }
 	});
-	this.panelList[5].add(this.revertButton);
+	this.addPanel(this.revertButton);
+
+	this.curTickLabel = new JLabel("Current Tick: " + String.valueOf(this.curTick));
+	this.addPanel(this.curTickLabel);
+    }
+
+    protected void addPanel(Component p)
+    {
+	if (this.curIndex < this.panelList.length)
+	{
+	    this.panelList[this.curIndex].add(p);
+	    this.curIndex++;
+	}
+	else
+	{
+	    throw new IndexOutOfBoundsException();
+	}
     }
 
     @Override
@@ -135,7 +171,7 @@ public class OptionPanel extends Manager<JPanel>
     protected void start()
     {
 	// TODO Auto-generated method stub
-	
+
     }
 
 }

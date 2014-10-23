@@ -12,17 +12,18 @@ import qcasim.display.panel.RenderPanel;
 
 public class RenderWindow extends Manager<JFrame>
 {
-    protected int width = 1500;
-    protected int height = width / 16 * 9;
+    protected int cellSize = 3;
+    protected int width = this.cellSize * 100 + 100;
+    protected int height = this.cellSize * 100 + 100;
     protected boolean mayOpen = false;
 
     public RenderWindow()
     {
 	this.element = new JFrame();
-	this.children.add(new RenderPanel());
+	this.children.add(new RenderPanel(this.cellSize));
 
-	this.element.setTitle("QCA Simuator: Render Window");
-	this.element.setSize(width, height);
+	this.element.setTitle("Automaton Simuator: Render Window");
+	this.element.setSize(this.width, this.height);
 	this.element.setLocationRelativeTo(null);
 	
 	this.element.setContentPane((JPanel) this.children.get(0).getElement());

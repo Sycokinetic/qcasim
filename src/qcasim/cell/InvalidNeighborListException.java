@@ -1,4 +1,4 @@
-package qcasim;
+package qcasim.cell;
 
 public class InvalidNeighborListException extends RuntimeException
 {

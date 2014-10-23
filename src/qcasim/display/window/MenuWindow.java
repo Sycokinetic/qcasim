@@ -16,7 +16,7 @@ public class MenuWindow extends Manager<JFrame>
 	this.element = new JFrame();
 	this.children.add(new MenuPanel());
 	
-	this.element.setTitle("QCA Simulator");
+	this.element.setTitle("Automaton Simulator");
 	this.element.setSize(width, height);
 	this.element.setLocationRelativeTo(null);
 	
@@ -28,36 +28,26 @@ public class MenuWindow extends Manager<JFrame>
     @Override
     protected void init()
     {
-	// TODO Auto-generated method stub
-
     }
 
     @Override
     protected void cycle()
     {
-	// TODO Auto-generated method stub
-
     }
 
     @Override
     protected void revert()
     {
-	// TODO Auto-generated method stub
-
     }
 
     @Override
     protected void stop()
     {
-	// TODO Auto-generated method stub
-	
     }
 
     @Override
     protected void start()
     {
-	// TODO Auto-generated method stub
-	
     }
 
 }
